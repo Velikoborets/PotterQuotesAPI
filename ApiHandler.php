@@ -41,7 +41,7 @@ class ApiHandler
     }
 }
 
-$url = 'http://arturvelikoborets-testtask/REST-API/ApiService.php?limit=20';
+$url = 'http://rest-api-php/ApiService.php?limit=20';
 $randomStr = bin2hex(random_bytes(8));
 $data = json_encode(['randomStr' => $randomStr]);
 
