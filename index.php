@@ -12,7 +12,7 @@ echo "<link rel=\"stylesheet\" href=\"public/style/style.css\">";
 // Получаем метод запроса
 $requestMethod = $_SERVER['REQUEST_METHOD'];
 
-$url = 'http://github-projects/rest-api-php/src/classes/ApiService.php?limit=20';
+$url = 'http://github-projects/PotterQuotesAPI/src/classes/ApiService.php?limit=20';
 $quote = Quote::getQuote();
 $data = json_encode(['quote' => $quote]);
 

@@ -66,7 +66,7 @@ class ApiService
     public function saveStr($readyQuote)
     {
         if (strlen($readyQuote) < 1000) {
-            file_put_contents('../classes/misc/file.txt', $readyQuote . PHP_EOL, FILE_APPEND);
+            file_put_contents('../../misc/file.txt', $readyQuote . PHP_EOL, FILE_APPEND);
             $this->logAllChanges($readyQuote);
         } else {
             throw new \Exception("Длина строки больше 1000 символов!");
@@ -74,23 +74,24 @@ class ApiService
     }
 
     // Метод чтения
-    public function serviceGet()
-    {
+    public function serviceGet() {
         try {
             $filePath = '../../misc/file.txt';
-
             // Проверяем IP и существование файла
             if ($this->checkIP() && $this->checkFile($filePath)) {
-
                 // Чтение файла
                 $fileContent = file($filePath, FILE_IGNORE_NEW_LINES);
                 $totalLines = count($fileContent);
 
-                // Возвращаем одну случайную цитату
-                $randomIndex = rand(0, $totalLines - 1);
-                $randomQuote = $fileContent[$randomIndex];
-
-                echo json_encode(['content' => $randomQuote], JSON_UNESCAPED_UNICODE);
+                // Проверка, что массив не пуст
+                if ($totalLines > 0) {
+                    // Возвращаем одну случайную цитату
+                    $randomIndex = rand(0, $totalLines - 1);
+                    $randomQuote = $fileContent[$randomIndex];
+                    echo json_encode(['content' => $randomQuote], JSON_UNESCAPED_UNICODE);
+                } else {
+                    throw new \Exception("Файл пуст!");
+                }
             }
         } catch (\Exception $error) {
             echo json_encode(['error' => $error->getMessage()], JSON_UNESCAPED_UNICODE);
