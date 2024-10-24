@@ -1,5 +1,7 @@
 <?php
 
+namespace Classes;
+
 class CurlHandler
 {
     public static function post($url, $data)

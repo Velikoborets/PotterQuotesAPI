@@ -1,5 +1,7 @@
 <?php
 
+namespace Classes;
+
 header('Content-Type: application/json'); // Отдаём отвёт в JSON
 
 class ApiService
@@ -19,13 +21,14 @@ class ApiService
                 throw new \Exception("Размер данных слишком велик!");
 
             } else {
-                $randomStr = json_decode($input, true);
-                $readyStr = $randomStr['randomStr'];
+                $quote = json_decode($input, true);
+                $readyQuote = $quote['quote'];
+
                 // Валидируем данные полученной строки и при успешной валидации, пишем в лог-файл и сохраняем в txt (без перезаписи)
-                $this->validationStr($readyStr);
+                $this->validationStr($readyQuote);
             }
         } catch (\Exception $error) {
-            echo json_encode(['error' => $error->getMessage()],JSON_UNESCAPED_UNICODE);
+            echo json_encode(['error' => $error->getMessage()], JSON_UNESCAPED_UNICODE);
         }
     }
 
@@ -35,36 +38,36 @@ class ApiService
         $getIP = $_SERVER['HTTP_CLIENT_IP'] ?? $_SERVER['HTTP_X_FORWARDED_FOR'] ?? $_SERVER['REMOTE_ADDR'];
         $logData = 'Большой запрос от ' . $getIP . ' (' . date('Y-m-d H:i:s') . ')' . PHP_EOL;
         $logData .= 'Размер запроса: ' . strlen($input) . ' байт' . PHP_EOL;
-        file_put_contents('big-log.txt', $logData, FILE_APPEND);
+        file_put_contents('../../logs/big-log.txt', $logData, FILE_APPEND);
     }
 
     // Сохраняет логирование всех изменений в отдельный лог-файл
-    public function logAllChanges($readyStr)
+    public function logAllChanges($readyQuote)
     {
         $getIP = $_SERVER['HTTP_CLIENT_IP'] ?? $_SERVER['HTTP_X_FORWARDED_FOR'] ?? $_SERVER['REMOTE_ADDR'];
         $getDate = date('Y-m-d H:i:s');
-        $getLengthText = strlen($readyStr);
+        $getLengthText = strlen($readyQuote);
 
         $prepareToRecord = 'IP клиента: ' . $getIP . PHP_EOL . 'Дата: ' . $getDate . PHP_EOL . 'Длина текста: ' . $getLengthText . PHP_EOL;
-        $saveData = file_put_contents('log.txt', $prepareToRecord, FILE_APPEND);
+        $saveData = file_put_contents('../../logs/log.txt', $prepareToRecord, FILE_APPEND);
     }
 
     // Валидируем данные полученной строки:
-    public function validationStr($readyStr)
+    public function validationStr($readyQuote)
     {
-        if (isset($readyStr)) {
-            $this->saveStr($readyStr);
+        if (isset($readyQuote)) {
+            $this->saveStr($readyQuote);
         } else {
             throw new \Exception("Строки для записи в файл - не сущесвует!");
         }
     }
 
     // Сохраняем строку в txt без перезаписи + логируем
-    public function saveStr($readyStr)
+    public function saveStr($readyQuote)
     {
-        if (strlen($readyStr) < 1000) {
-            file_put_contents('file.txt', $readyStr . PHP_EOL, FILE_APPEND);
-            $this->logAllChanges($readyStr);
+        if (strlen($readyQuote) < 1000) {
+            file_put_contents('../classes/misc/file.txt', $readyQuote . PHP_EOL, FILE_APPEND);
+            $this->logAllChanges($readyQuote);
         } else {
             throw new \Exception("Длина строки больше 1000 символов!");
         }
@@ -74,24 +77,20 @@ class ApiService
     public function serviceGet()
     {
         try {
-            $filePath = 'file.txt';
+            $filePath = '../../misc/file.txt';
 
             // Проверяем IP и существование файла
             if ($this->checkIP() && $this->checkFile($filePath)) {
-
-                // Получение параметров limit и offset
-                $limit = isset($_GET['limit']) ? (int)$_GET['limit'] : 100;
-                $offset = isset($_GET['offset']) ? (int)$_GET['offset'] : 0;
 
                 // Чтение файла
                 $fileContent = file($filePath, FILE_IGNORE_NEW_LINES);
                 $totalLines = count($fileContent);
 
-                // Обработка limit и offset
-                $content = array_slice($fileContent, $offset, $limit);
-                $data = implode(PHP_EOL, $content);
+                // Возвращаем одну случайную цитату
+                $randomIndex = rand(0, $totalLines - 1);
+                $randomQuote = $fileContent[$randomIndex];
 
-                echo json_encode(['content' => $data], JSON_UNESCAPED_UNICODE);
+                echo json_encode(['content' => $randomQuote], JSON_UNESCAPED_UNICODE);
             }
         } catch (\Exception $error) {
             echo json_encode(['error' => $error->getMessage()], JSON_UNESCAPED_UNICODE);
@@ -113,6 +112,7 @@ class ApiService
     {
         $getIP = $_SERVER['HTTP_CLIENT_IP'] ?? $_SERVER['HTTP_X_FORWARDED_FOR'] ?? $_SERVER['REMOTE_ADDR'];
         $allowedIPs = ['127.0.0.1', '::1', 'localhost'];
+
         if (!in_array($getIP, $allowedIPs)) {
             http_response_code(403);
             throw new \Exception("Доступ запрещен! Код ответа: " . http_response_code());
@@ -123,7 +123,7 @@ class ApiService
 }
 
 // Определяем метод запроса и вызываем нужный метод
-$apiService= new ApiService();
+$apiService = new ApiService();
 
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     $apiService->servicePost();

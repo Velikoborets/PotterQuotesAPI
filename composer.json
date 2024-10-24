@@ -1,0 +1,19 @@
+{
+    "name": "artur/rest-api-php",
+    "autoload": {
+        "psr-4": {
+            "Classes\\": "src/classes"
+        }
+    },
+    "authors": [
+        {
+            "name": "Velikoborets",
+            "email": "gtahzby1@gmail.com"
+        }
+    ],
+    "require": {
+        "ext-json": "*",
+        "ext-pdo": "*",
+        "ext-curl": "*"
+    }
+}

@@ -1,6 +1,8 @@
 <?php
 
-require_once 'CurlHandler.php';
+namespace Classes;
+
+use Classes\CurlHandler;
 
 class ApiHandler
 {
@@ -40,15 +42,3 @@ class ApiHandler
         return $jsonResponse;
     }
 }
-
-$url = 'http://rest-api-php/ApiService.php?limit=20';
-$randomStr = bin2hex(random_bytes(8));
-$data = json_encode(['randomStr' => $randomStr]);
-
-$apiHandler = new ApiHandler($url);
-
-// Отправка POST-запроса + ответ
-$resPOST = $apiHandler->sendPostRequest($data);
-
-// Отправка GET-запроса
-$resGET = $apiHandler->sendGetRequest();
